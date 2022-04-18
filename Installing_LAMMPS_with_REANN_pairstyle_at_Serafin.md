@@ -44,7 +44,8 @@ Load cmake, compiler and library modules
 Build lammps configuration
 
     cd $LAMMPS_ROOT/build
-    sh build.sh
+    cmake -D BUILD_MPI=ON -D PKG_USER-OMP=ON -D BUILD_OMP=ON -D LAMMPS_MACHINE=mpi -D CMAKE_BUILD_TYPE=RELEASE -D WITH_PNG=no -D WITH_FFMPEG=no -D FFT=FFTW3 -D FFTW3_INCLUDE_DIR=$AMDFFTW_ROOT/include -D FFTW3_LIBRARY=$AMDFFTW_ROOT/lib ../cmake
+    
     
 It will write some output summarizing the configuration options
 
