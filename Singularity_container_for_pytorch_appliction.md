@@ -1,7 +1,7 @@
 # Containerizing a pyTorch application with Singularity (now Apptainer)
 
 This tutorial is divided in three steps:
-1. Test the pyTorch application within a Conda environment.
+1. Test the PyTorch application within a Conda environment.
 2. Use the application within a Singularity container as an interactive shell.
 3. Use the container as a standalone file.
 
@@ -9,31 +9,78 @@ This tutorial is divided in three steps:
 
 - Donwload miniconda from:  https://docs.conda.io/en/latest/miniconda.html
 - Install Miniconda: 
-        
-        bash Miniconda3-latest-Linux-x86_64.sh
+
+```bash      
+bash Miniconda3-latest-Linux-x86_64.sh
+```
 - If using a bash shell add the following lines to $HOME/.bashrc
 
-        # >>> conda initialize >>>
-        # !! Contents within this block are managed by 'conda init' !!
-        __conda_setup="$('/home/mramos/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-        if [ $? -eq 0 ]; then
-        eval "$__conda_setup"
-        else
-        if [ -f "/home/mramos/miniconda3/etc/profile.d/conda.sh" ]; then
-                . "/home/mramos/miniconda3/etc/profile.d/conda.sh"
-        else
-                export PATH="/home/mramos/miniconda3/bin:$PATH"
-        fi
-        fi
-        unset __conda_setup
-        # <<< conda initialize <<<
+```bash
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/mramos/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+eval "$__conda_setup"
+else
+if [ -f "/home/mramos/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/mramos/miniconda3/etc/profile.d/conda.sh"
+else
+        export PATH="/home/mramos/miniconda3/bin:$PATH"
+fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+```
+
 - Execute `source $HOME/.bashrc`
+  
+  Now `(base)` should appear at the left side of your prompt, indicating that the **base** environment is active. My prompt looks like this:
 
-## 1. Test the pyTorch application within a Conda environment.
+```bash
+(base) [mramos@mendieta ~]$
+```
+
+## 1. Test the PyTorch application within a Conda environment.
 - I'll be using the REANN Package from [github](https://github.com/zhangylch/REANN), thus the conda environment will be called reann
+```bash
+#create a conda environment
+conda create --name reann
 
-        #create a conda environment
-        conda create --name reann
+#activate the environment
+conda activate reann
+```
 
-        #activate the environment
-        conda activate reann
+Now the prompt should look similar to: `(reann) [mramos@mendieta ~]$` indicating that **reann** environment is now active.
+
+```bash
+#install conda-build package
+conda install conda-build
+```
+
+- REANN requires PyTorch and opt_einsum packages. As Mendieta's A30 GPUs belong to the latest NIVIDIA architecture, they require cudatoolkit 11.x to work propperly. 
+```bash
+# Install pytorch
+conda install pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cudatoolkit=11.3 -c pytorch -c conda-forge
+
+# Install opt_einsum
+conda install opt_einsum -c conda-forge
+```
+
+- Download REANN package from github. I´ll place it at `$HOME/Software`
+
+```bash
+mkdir $HOME/Software
+cd $HOME/Software
+git clone https://github.com/zhangylch/REANN.git
+
+# To make sure python will find all reann's scripts
+conda develop $HOME/Software/REANN/reann
+```
+
+Now the application should work. I will use an interactive session in a compute node allocated by SLURM. This is really useful when testing your applications because you get a console whitin the node and can run the same way you do in your laptop or desktop. To get the interactive session run:
+
+```bash
+salloc -p short --time=1:00:00 -N 1 --gres=gpu:1 srun --pty --preserve-env $SHELL
+```
+
+This is a session using the **short** partition (`-p short`), with a time limit of **one hour** (`--time=1:00:00`), allocating **1 node** (`-N 1`) and reserving **1 GPU** (`--gres=gpu:1`).
