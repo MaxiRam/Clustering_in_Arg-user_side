@@ -57,7 +57,7 @@ Now the prompt should look similar to: `(reann) [mramos@mendieta ~]$` indicating
 conda install conda-build
 ```
 
-- REANN requires PyTorch and opt_einsum packages. As Mendieta's A30 GPUs belong to the latest NIVIDIA architecture, they require cudatoolkit 11.x to work propperly. 
+- REANN requires PyTorch and opt_einsum packages. As Mendieta's A30 GPUs belong to the latest NIVIDIA architecture, they require cudatoolkit 11.x to work properly. 
 ```bash
 # Install pytorch
 conda install pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cudatoolkit=11.3 -c pytorch -c conda-forge
@@ -84,3 +84,8 @@ salloc -p short --time=1:00:00 -N 1 --gres=gpu:1 srun --pty --preserve-env $SHEL
 ```
 
 This is a session using the **short** partition (`-p short`), with a time limit of **one hour** (`--time=1:00:00`), allocating **1 node** (`-N 1`) and reserving **1 GPU** (`--gres=gpu:1`).
+
+```bash
+conda activate reann
+cd 
+```
