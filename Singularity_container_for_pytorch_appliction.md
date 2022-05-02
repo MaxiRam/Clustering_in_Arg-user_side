@@ -87,5 +87,21 @@ This is a session using the **short** partition (`-p short`), with a time limit 
 
 ```bash
 conda activate reann
-cd 
+cd $HOME/Software/REANN/reann/example/co2+ni100
 ```
+
+Modify the file `$HOME/Software/REANN/reann/example/co2+ni100/para/input_nn` with yout favorite text editor
+
+- line 12: write `Epoch = 20` instead of 20000 so it will run a few seconds.
+- line 42: modify the path between quotes so it points to `$HOME/Software/REANN/data/co2+Ni100/` but write the absolute path.
+
+Now run the calculation:
+
+```bash
+export OMP_NUM_THREADS=1
+python3 -m torch.distributed.run --nproc_per_node=1 --nnodes=1 $HOME/Software/REANN/reann/run/train.py
+```
+
+After a while the calculation will end seccesfully and convergence can be seen in `nn.err` file.
+
+## 2. Use the application within a Singularity container as an interactive shell.
