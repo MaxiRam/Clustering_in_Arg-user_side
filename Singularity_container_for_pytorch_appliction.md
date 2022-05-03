@@ -105,3 +105,48 @@ python3 -m torch.distributed.run --nproc_per_node=1 --nnodes=1 $HOME/Software/RE
 After a while the calculation will end seccesfully and convergence can be seen in `nn.err` file.
 
 ## 2. Use the application within a Singularity container as an interactive shell.
+
+Now, we'll do the same but inside a container. Let's create a folder ofr our containers and download a PyTorch container from DockerHub:
+
+```bash
+mkdir $HOME/containers; cd $HOME/containers
+apptainer build pytorch_1.11.0-cuda11.3-cudnn8-runtime.sif docker://pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel
+```
+
+After some minutes `pytorch_1.11.0-cuda11.3-cudnn8-runtime.sif` file must exist. This file is a container but it doesn't have the REANN package. Now, we will expand the container into a folder and then add the REANN package to it.
+
+```bash
+apptainer build --sandbox reann_container pytorch_1.11.0-cuda11.3-cudnn8-runtime.sif
+```
+Before entering the container execute the command `cat /etc/os-release` and you'll get the following output in Mendieta:
+
+```bash
+NAME="Rocky Linux"
+VERSION="8.5 (Green Obsidian)"
+ID="rocky"
+ID_LIKE="rhel centos fedora"
+VERSION_ID="8.5"
+PLATFORM_ID="platform:el8"
+PRETTY_NAME="Rocky Linux 8.5 (Green Obsidian)"
+ANSI_COLOR="0;32"
+CPE_NAME="cpe:/o:rocky:rocky:8:GA"
+HOME_URL="https://rockylinux.org/"
+BUG_REPORT_URL="https://bugs.rockylinux.org/"
+ROCKY_SUPPORT_PRODUCT="Rocky Linux"
+ROCKY_SUPPORT_PRODUCT_VERSION="8"
+```
+
+Now let's get a shell inside the container and check the Linux distribution:
+
+```bash
+apptainer shell --writable reann_container/
+cat /etc/lsb-release
+```
+
+Now the prompt has changed to `Apptainer>` indicating that we are inside the container and the Linux distribution is:
+```bash
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=18.04
+DISTRIB_CODENAME=bionic
+DISTRIB_DESCRIPTION="Ubuntu 18.04.6 LTS"
+```
