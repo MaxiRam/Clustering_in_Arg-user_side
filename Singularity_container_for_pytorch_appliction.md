@@ -2,8 +2,8 @@
 
 This tutorial is divided in three steps:
 1. Test the PyTorch application within a Conda environment.
-2. Use the application within a Singularity container as an interactive shell.
-3. Use the container as a standalone file.
+2. Use the application within a Singularity container with an interactive session.
+3. Use the containerized application as a batch job.
 
 ## Prerequisites
 
@@ -149,4 +149,36 @@ DISTRIB_ID=Ubuntu
 DISTRIB_RELEASE=18.04
 DISTRIB_CODENAME=bionic
 DISTRIB_DESCRIPTION="Ubuntu 18.04.6 LTS"
+```
+
+Now we need to install `opt_einsum` and `REANN` packages inside the container:
+
+```bash
+conda install opt_einsum -c conda-forge
+mkdir Software
+cd Software
+git clone https://github.com/zhangylch/REANN.git
+conda develop Software/REANN/reann
+exit
+```
+
+Now the folder `reann_container` has all what is needed to build the container. Let's build the container file:
+
+```bash
+apptainer build reann_container.sif reann_container
+```
+
+We will log to a Slurm's interactive session to test the container in the same way we did before:
+
+```bash
+salloc -p short --time=1:00:00 -N 1 --gres=gpu:1 srun --pty --preserve-env $SHELL
+```
+
+```bash
+cd $HOME/Software/REANN/reann/example/co2+ni100
+
+#clean the output from previous run
+rm REANN* nn.err
+
+apptainer run --nv exec python3 -m torch.distributed.run --nproc_per_node=1 --nnodes=1 $APPTAINER_CONTAINER/Software/REANN/reann/run/train.py
 ```
