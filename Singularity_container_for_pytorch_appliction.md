@@ -110,7 +110,7 @@ Now, we'll do the same but inside a container. Let's create a folder ofr our con
 
 ```bash
 mkdir $HOME/containers; cd $HOME/containers
-apptainer build pytorch_1.11.0-cuda11.3-cudnn8-runtime.sif docker://pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel
+apptainer build pytorch_1.11.0-cuda11.3-cudnn8-runtime.sif docker://pytorch/pytorch:1.11.0-cuda11.3-cudnn8-runtime
 ```
 
 After some minutes `pytorch_1.11.0-cuda11.3-cudnn8-runtime.sif` file must exist. This file is a container but it doesn't have the REANN package. Now, we will expand the container into a folder and then add the REANN package to it.
@@ -155,10 +155,10 @@ Now we need to install `opt_einsum` and `REANN` packages inside the container:
 
 ```bash
 conda install opt_einsum -c conda-forge
-mkdir Software
-cd Software
-git clone https://github.com/zhangylch/REANN.git
-conda develop Software/REANN/reann
+conda install git
+git clone https://github.com/zhangylch/REANN.git /opt
+cp $HOME/Software/REANN /opt
+conda develop /opt/REANN/reann
 exit
 ```
 
